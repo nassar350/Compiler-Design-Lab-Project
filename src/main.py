@@ -22,8 +22,7 @@ def print_summary(tokens):
         print(f"  {token_type.name:<12}: {count}")
 
     print("\nTokens:")
-    for t in tokens:
-        print(f"  {t}")
+    print(tokens)
 
     print("==============================\n")
 
@@ -52,7 +51,11 @@ def main():
 
     # OUTPUT
     if args.output:
-        write_tokens(tokens, args.output)
+        try:
+            write_tokens(tokens, args.output)
+        except ValueError as ve:
+            print(f"❌ Error: {ve}")
+            sys.exit(1)
         print(f"✅ Tokens written to {args.output}")
 
 if __name__ == "__main__":

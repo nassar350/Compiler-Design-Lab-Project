@@ -5,7 +5,7 @@ from lexer.token import Token
 from lexer.token_types import TokenType
 
 def _serialize(tokens):
-    return [t.__dict__ for t in tokens]
+    return [t.to_dict() for t in tokens]
 
 
 def write_tokens(tokens, file_path):
@@ -16,5 +16,5 @@ def write_tokens(tokens, file_path):
 
     data = _serialize(tokens)
     with open(file_path, 'w') as file:
-        json.dump(data, file)
+        json.dump(data, file, indent=2)
 

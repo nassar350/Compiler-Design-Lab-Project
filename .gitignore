@@ -41,3 +41,5 @@ Thumbs.db
 # Sensitive information (example, adjust as needed)
 config.ini
 .env
+
+*.json
