@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
 import json
-from lexer.token import Token
-from lexer.token_types import TokenType
 
 def _serialize(tokens):
     return [t.to_dict() for t in tokens]
