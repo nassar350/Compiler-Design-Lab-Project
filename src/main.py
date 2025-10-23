@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import argparse
-import json
 import sys
 from lexer.tokenizer import tokenize
 from IO.file_reader import read_source
