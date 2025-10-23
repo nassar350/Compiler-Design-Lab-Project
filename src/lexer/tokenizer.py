@@ -43,6 +43,8 @@ class Tokenizer:
                 token_type = token_types.TokenType.NUMERIC_CONSTANT
             elif self.scanner.is_identifier(lexeme):
                 token_type = token_types.TokenType.IDENTIFIER
+            elif self.scanner.is_newline(lexeme):
+                token_type = token_types.TokenType.NEWLINE
             elif self.scanner.is_whitespace(lexeme):
                 token_type = token_types.TokenType.WHITESPACE
             else:

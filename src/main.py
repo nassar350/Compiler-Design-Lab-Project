@@ -2,7 +2,7 @@
 
 import argparse
 import sys
-from lexer.tokenizer import tokenize
+from lexer.tokenizer import Tokenizer
 from IO.file_reader import read_source
 from IO.file_writer import write_tokens
 from lexer.token_types import TokenType
@@ -43,7 +43,8 @@ def main():
         sys.exit(1)
 
     # TOKENIZATION
-    tokens = tokenize(source_code)
+    tokenizer = Tokenizer()
+    tokens = tokenizer.tokenize(source_code)
 
     # SUMMARY
     print_summary(tokens)
