@@ -1,0 +1,43 @@
+# Byte-compiled / optimized / compiled files
+__pycache__/
+*.pyc
+*.pyd
+*.pyo
+
+# Virtual environment
+.venv/
+venv/
+.env/
+env/
+# You might also have a virtual environment in a different location, e.g.,
+# my_project_env/ 
+
+# Editor-specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Project-specific temporary files
+*.log
+*.tmp
+*.bak
+*.sqlite3
+db.sqlite3
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# Jupyter Notebook specific files
+.ipynb_checkpoints/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Sensitive information (example, adjust as needed)
+config.ini
+.env
