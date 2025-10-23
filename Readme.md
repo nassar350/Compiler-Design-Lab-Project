@@ -34,7 +34,7 @@ project/
   - **Character Constants** (`'a'`, `'1'`)
   - **Special Characters** (`(){}[];,#.`)
   - **Comments** (`// single-line`, `/* multi-line */`)
-  - **Whitespace & Newlines`
+  - **Whitespace & Newlines**
 - Provides a summary of token counts by type.
 - Optionally writes tokenized output to a file.
 
