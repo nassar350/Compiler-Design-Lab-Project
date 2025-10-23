@@ -1,9 +1,9 @@
 # Logic tokenize
 
 import re
-from token import Token
-import token_types
-from scanner import Scanner
+from lexer.token import Token
+import lexer.token_types as token_types
+from lexer.scanner import Scanner
 
 class Tokenizer:
     def __init__(self):
@@ -43,6 +43,8 @@ class Tokenizer:
                 token_type = token_types.TokenType.NUMERIC_CONSTANT
             elif self.scanner.is_identifier(lexeme):
                 token_type = token_types.TokenType.IDENTIFIER
+            elif self.scanner.is_newline(lexeme):
+                token_type = token_types.TokenType.NEWLINE
             elif self.scanner.is_whitespace(lexeme):
                 token_type = token_types.TokenType.WHITESPACE
             else:

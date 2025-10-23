@@ -10,4 +10,4 @@ class TokenType(Enum):
     SPECIAL_CHARACTER = "Special Character"
     COMMENT = "Comment"
     WHITESPACE = "White Space"
-    NEWLINE = "Newline"
+    NEWLINE = "New line"
