@@ -1,9 +1,9 @@
 # Logic tokenize
 
 import re
-from token import Token
-import token_types
-from scanner import Scanner
+from lexer.token import Token
+import lexer.token_types as token_types
+from lexer.scanner import Scanner
 
 class Tokenizer:
     def __init__(self):
