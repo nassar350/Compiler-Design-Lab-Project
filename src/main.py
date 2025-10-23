@@ -4,8 +4,8 @@ import argparse
 import json
 import sys
 from lexer.tokenizer import tokenize
-from io.file_reader import read_source
-from io.file_writer import write_tokens
+from IO.file_reader import read_source
+from IO.file_writer import write_tokens
 from lexer.token_types import TokenType
 
 def print_summary(tokens):
