@@ -6,6 +6,7 @@ from lexer.tokenizer import Tokenizer
 from IO.file_reader import read_source
 from IO.file_writer import write_tokens
 from lexer.token_types import TokenType
+from parser.parser import Parser, ParserError
 
 def print_summary(tokens):
     print(f"Total Tokens: {len(tokens)}", end="\n\n")
@@ -45,9 +46,15 @@ def main():
     # TOKENIZATION
     tokenizer = Tokenizer()
     tokens = tokenizer.tokenize(source_code)
-
-    # SUMMARY
-    print_summary(tokens)
+    
+    # PARSING
+    parser = Parser(tokens)
+    try:
+        parser.parse_program()
+        parser.expect_eof()
+        print("Syntax: OK")
+    except ParserError as e:
+        print(f"Syntax error: {e}")
 
     # OUTPUT
     if args.output:
