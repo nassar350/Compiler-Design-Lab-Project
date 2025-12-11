@@ -33,11 +33,11 @@ class Parser:
         while self.pos < len(self.tokens) and self._is_trivia(self.tokens[self.pos]):
             self.pos += 1
 
-    def peek(self) -> Token | None:
+    def peek(self, n=0) -> Token | None:
         """Return current non-trivia token without consuming it, or None at end."""
         self._skip_trivia()
-        if self.pos < len(self.tokens):
-            return self.tokens[self.pos]
+        if self.pos + n < len(self.tokens):
+            return self.tokens[self.pos + n]
         return None
 
     def advance(self) -> Token | None:
@@ -320,9 +320,15 @@ class Parser:
 
         if (tok is not None and tok.type == TokenType.IDENTIFIER):
             self.expect(type_=TokenType.IDENTIFIER)
+        else:
+            return self.parse_or_expr()
+        last_pos = self.pos
+        next_tok = self.peek()
+        if next_tok is not None and next_tok.value == '=':
             self.expect(lexeme='=')
             return self.parse_assign_expr()
         else:
+            self.pos = last_pos
             # Not an assignment, parse as OrExpr
             return self.parse_or_expr()
 
