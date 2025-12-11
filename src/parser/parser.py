@@ -34,10 +34,33 @@ class Parser:
             self.pos += 1
 
     def peek(self, n=0) -> Token | None:
-        """Return current non-trivia token without consuming it, or None at end."""
+        """Return the n-th non-trivia token from current position without consuming it.
+        Handles lookahead that skips comments/whitespace/newlines.
+        Returns None if there are fewer than n+1 non-trivia tokens remaining.
+        """
+        # Start at first non-trivia token from current position
         self._skip_trivia()
-        if (self.pos + n) < len(self.tokens):
-            return self.tokens[self.pos + n]
+        idx = self.pos
+
+        # If n == 0, just return current non-trivia token (if any)
+        if n == 0:
+            if idx < len(self.tokens):
+                return self.tokens[idx]
+            return None
+
+        # Walk forward, counting only non-trivia tokens
+        remaining = n
+        while idx < len(self.tokens) and remaining > 0:
+            idx += 1
+            # Skip any trivia we encounter at the new index
+            while idx < len(self.tokens) and self._is_trivia(self.tokens[idx]):
+                idx += 1
+            # We have advanced by one non-trivia token
+            remaining -= 1
+
+        # After advancing, return the token at idx if within bounds
+        if idx < len(self.tokens):
+            return self.tokens[idx]
         return None
 
     def advance(self) -> Token | None:
@@ -302,7 +325,9 @@ class Parser:
     # ExprOpt       → Expr | ε
     def parse_expr_opt(self) -> None:
         tok = self.peek()
-        if tok is not None and (tok.type == TokenType.IDENTIFIER):
+        if tok is not None and (tok.type == TokenType.IDENTIFIER 
+                                or tok.type == TokenType.NUMERIC_CONSTANT
+                                or tok.value == '('):
             self.parse_expr()
         else:
             return
