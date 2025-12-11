@@ -299,7 +299,121 @@ class Parser:
         self.parse_expr_opt()
         self.expect(lexeme=';')
 
+    def parse_expr(self) -> None:
+        """Expr → AssignExpr"""
+        return self.parse_assign_expr()
 
+    def parse_assign_expr(self) -> None:
+        """AssignExpr → ID = AssignExpr | OrExpr"""
+        # Check if this is an assignment: ID = AssignExpr
+        if (self.peek() is not None and self.peek().type == TokenType.IDENTIFIER and
+            self.peek(1) is not None and self.peek(1).value == '='):
+            # Assignment: consume ID and = then parse right-hand side
+            self.advance()  # consume ID
+            self.advance()  # consume =
+            return self.parse_assign_expr()
+        else:
+            # Not an assignment, parse as OrExpr
+            return self.parse_or_expr()
+
+
+
+    def parse_or_expr(self) -> None:
+        """OrExpr → AndExpr OrExprTail"""
+        self.parse_and_expr()
+        self.parse_or_expr_tail()
+
+    def parse_or_expr_tail(self) -> None:
+        """OrExprTail → || AndExpr OrExprTail | ε"""
+        tok = self.peek()
+        if tok is not None and tok.value == '||':
+            self.advance()  # consume ||
+            self.parse_and_expr()
+            self.parse_or_expr_tail()
+        # else: epsilon case, just return
+
+    def parse_and_expr(self) -> None:
+        """AndExpr → RelExpr AndExprTail"""
+        self.parse_rel_expr()
+        self.parse_and_expr_tail()
+
+    def parse_and_expr_tail(self) -> None:
+        """AndExprTail → && RelExpr AndExprTail | ε"""
+        tok = self.peek()
+        if tok is not None and tok.value == '&&':
+            self.advance()  # consume &&
+            self.parse_rel_expr()
+            self.parse_and_expr_tail()
+        # else: epsilon case, just return
+
+    def parse_rel_expr(self) -> None:
+        """RelExpr → AddExpr RelOpTail"""
+        self.parse_add_expr()
+        self.parse_rel_op_tail()
+
+    def parse_rel_op_tail(self) -> None:
+        """RelOpTail → RelOp AddExpr | ε"""
+        tok = self.peek()
+        if tok is not None and tok.value in {'<', '<=', '>', '>=', '==', '!='}:
+            self.advance()  # consume relational operator
+            self.parse_add_expr()
+        # else: epsilon case, just return
+
+    def parse_add_expr(self) -> None:
+        """AddExpr → Term AddExprTail"""
+        self.parse_term()
+        self.parse_add_expr_tail()
+
+    def parse_add_expr_tail(self) -> None:
+        """AddExprTail → + Term AddExprTail | - Term AddExprTail | ε"""
+        tok = self.peek()
+        if tok is not None and tok.value in {'+', '-'}:
+            self.advance()  # consume + or -
+            self.parse_term()
+            self.parse_add_expr_tail()
+        # else: epsilon case, just return
+
+    def parse_term(self) -> None:
+        """Term: parse primary expression (ID, number, parenthesized expr, function call, etc.)"""
+        tok = self.peek()
+        if tok is None:
+            raise ParserError("Unexpected end of input in expression")
+        
+        if tok.type == TokenType.IDENTIFIER:
+            self.advance()
+            # Check for function call: ID (...)
+            next_tok = self.peek()
+            if next_tok is not None and next_tok.value == '(':
+                self.advance()  # consume (
+                self.parse_arg_list()
+                self.expect(lexeme=')')
+        elif tok.type == TokenType.NUMBER:
+            self.advance()
+        elif tok.value == '(':
+            self.advance()  # consume (
+            self.parse_expr()
+            self.expect(lexeme=')')
+        else:
+            raise ParserError(f"Unexpected token in expression: {tok.value!r}")
+
+    def parse_arg_list(self) -> None:
+        """Parse function argument list (simplified)"""
+        tok = self.peek()
+        if tok is not None and tok.value == ')':
+            # Empty argument list
+            return
+        # Parse first argument
+        self.parse_expr()
+        # Parse remaining arguments
+        self.parse_arg_list_tail()
+
+    def parse_arg_list_tail(self) -> None:
+        """Parse remaining function arguments"""
+        tok = self.peek()
+        if tok is not None and tok.value == ',':
+            self.advance()  # consume ,
+            self.parse_expr()
+            self.parse_arg_list_tail()   
 
     # Stmt, IfStmt, WhileStmt, ForStmt, ReturnStmt, Expr, etc.
     # Add more parse_* methods following your grammar as needed.
