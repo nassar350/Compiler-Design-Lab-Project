@@ -52,7 +52,7 @@ project/
 ### Command-Line Interface
 
 ```bash
-python main.py input_file.c -o tokens_output.txt
+python main.py input_file.c -o tokens_output.json
 ```
 - input_file.c → Source code file to tokenize
 - -o tokens_output.txt → Optional output file to save tokens
