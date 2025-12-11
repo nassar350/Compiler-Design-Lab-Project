@@ -313,66 +313,6 @@ Expected output: `Syntax: OK` (indicates successful parsing)
 
 ---
 
-## 📋 To-Do List
-
-### High Priority
-- [ ] **Semantic Analyzer**: Implement type checking and symbol table
-  - [ ] Symbol table for variable/function declarations
-  - [ ] Type checking for expressions and assignments
-  - [ ] Scope management and validation
-  - [ ] Function signature validation
-
-- [ ] **Enhanced Error Recovery**: Improve parser error recovery mechanisms
-  - [ ] Panic-mode recovery at statement boundaries
-  - [ ] More descriptive error messages with line numbers
-  - [ ] Multiple error reporting (don't stop at first error)
-
-- [ ] **Extended Token Support**:
-  - [ ] String literals (`"hello world"`)
-  - [ ] Additional operators (`++`, `--`, `+=`, `-=`, `%`)
-  - [ ] Preprocessor directives (`#include`, `#define`)
-
-### Medium Priority
-- [ ] **Abstract Syntax Tree (AST)**: Generate parse tree representation
-  - [ ] AST node classes for each grammar construct
-  - [ ] Tree construction during parsing
-  - [ ] AST visualization/printing
-
-- [ ] **Intermediate Code Generation**: 
-  - [ ] Three-address code generation
-  - [ ] Basic block construction
-  - [ ] Control flow graph
-
-- [ ] **Advanced Features**:
-  - [ ] Array declarations and indexing
-  - [ ] Pointer support (`*`, `&`)
-  - [ ] Struct/union declarations
-  - [ ] Switch-case statements
-  - [ ] Break and continue statements
-
-### Low Priority
-- [ ] **Optimization**: 
-  - [ ] Constant folding
-  - [ ] Dead code elimination
-  - [ ] Common subexpression elimination
-
-- [ ] **Testing & Documentation**:
-  - [ ] Comprehensive test suite with edge cases
-  - [ ] Unit tests for parser methods
-  - [ ] More example programs
-  - [ ] API documentation
-
-- [ ] **Code Generation**: 
-  - [ ] Assembly code generation
-  - [ ] Target architecture selection
-
-- [ ] **IDE Features**:
-  - [ ] Syntax highlighting integration
-  - [ ] Auto-completion suggestions
-  - [ ] Real-time error underlining
-
----
-
 ## 🐛 Known Issues
 
 - Parser does not currently track line numbers for error reporting
@@ -406,7 +346,7 @@ Expected output: `Syntax: OK` (indicates successful parsing)
 
 **Course**: Compiler Design Lab  
 **Institution**: College  
-**Branch**: Add/tokenizer  
+**Branch**: main  
 **Last Updated**: December 11, 2025
 
 ---
