@@ -20,6 +20,21 @@ Design Project (Scanner + Parser)/
 │   │   ├── Grammar.txt         # Formal BNF grammar specification
 │   │   └── parser.py           # Recursive-descent parser implementation
 │   │
+│   ├── tests/
+│   │   └── sources/            # Test case suite (12 test files)
+│   │       ├── 01_minimal_fun.c              # Basic function
+│   │       ├── 02_var_decls.c                # Variable declarations
+│   │       ├── 03_fun_with_params.c          # Functions with parameters
+│   │       ├── 04_compound_local_decls.c     # Local scope variables
+│   │       ├── 05_if_else.c                  # If/else statements
+│   │       ├── 06_while_for.c                # Loop statements
+│   │       ├── 07_calls_args.c               # Function calls
+│   │       ├── 08_logical_relational.c       # Logical/relational ops
+│   │       ├── 09_return_expr_opt.c          # Return statements
+│   │       ├── 10_invalid_missing_semicolon.c # Error test
+│   │       ├── 11_invalid_unmatched_paren.c  # Error test
+│   │       └── 12_invalid_unknown_type.c     # Error test
+│   │
 │   ├── IO/
 │   │   ├── file_reader.py      # Reads source code from file
 │   │   └── file_writer.py      # Writes tokens to output file
@@ -63,8 +78,12 @@ Design Project (Scanner + Parser)/
   - Function calls with arguments
   - Parenthesized expressions
 - **Smart Trivia Handling**: Automatically skips comments, whitespace, and newlines during parsing
-- **Comprehensive Error Reporting**: Clear syntax error messages with context
+- **Enhanced Error Reporting**: 
+  - Line and column number tracking for precise error location
+  - Format: `Syntax Error at line:column.`
+  - Clear error messages with token context
 - **Lookahead Support**: Multi-token lookahead for disambiguation
+- **Comprehensive Test Suite**: 12 test cases covering valid and invalid syntax
 
 ---
 
@@ -263,22 +282,41 @@ The parser uses lookahead to disambiguate:
 
 ## 🧪 Testing
 
-### Test File: `SourceCode.c`
-The project includes a sample C source file with:
-- Variable declarations (single and multiple)
-- Function definitions
-- Control structures (`if`/`else`)
-- Expressions with operators
-- Comments (single-line and multi-line)
-- Return statements
+### Test Suite Structure
+The project includes a comprehensive test suite in `src/tests/sources/` with 12 test cases:
+
+**Valid Syntax Tests (01-09):**
+- `01_minimal_fun.c` - Minimal function definition
+- `02_var_decls.c` - Variable declarations (single and multiple)
+- `03_fun_with_params.c` - Functions with parameters
+- `04_compound_local_decls.c` - Compound statements with local variables
+- `05_if_else.c` - If/else control flow
+- `06_while_for.c` - While and for loops
+- `07_calls_args.c` - Function calls with arguments
+- `08_logical_relational.c` - Logical and relational operators
+- `09_return_expr_opt.c` - Return statements with expressions
+
+**Invalid Syntax Tests (10-12):**
+- `10_invalid_missing_semicolon.c` - Missing semicolon error
+- `11_invalid_unmatched_paren.c` - Unmatched parenthesis error
+- `12_invalid_unknown_type.c` - Unknown type specifier error
 
 ### Running Tests
+
+**Single Test:**
 ```bash
 cd src
+python main.py tests/sources/01_minimal_fun.c
+```
+
+**With Output File:**
+```bash
 python main.py SourceCode.c -o result.json
 ```
 
-Expected output: `Syntax: OK` (indicates successful parsing)
+**Expected Output:**
+- Valid files: `Syntax: OK`
+- Invalid files: `Syntax Error at line:column.` with details
 
 ---
 
@@ -309,16 +347,17 @@ Expected output: `Syntax: OK` (indicates successful parsing)
 - ✅ Parenthesized expressions
 - ✅ Trivia handling (auto-skip whitespace/comments)
 - ✅ Multi-token lookahead support
-- ✅ Comprehensive error reporting
+- ✅ Enhanced error reporting with line:column tracking
+- ✅ Comprehensive test suite (12 test cases: 9 valid, 3 invalid)
+- ✅ Structured test organization in `tests/sources/`
 
 ---
 
 ## 🐛 Known Issues
 
-- Parser does not currently track line numbers for error reporting
 - No recovery mechanism - parsing stops at first syntax error
-- Limited test coverage for edge cases
 - Character constants recognized but not fully validated
+- Limited error message detail (could include expected token information)
 
 ---
 
