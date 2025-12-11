@@ -84,7 +84,6 @@ class Parser:
         tok = self.peek()
         if tok is not None and tok.type == TokenType.KEYWORD and tok.value in {"int" , "float", "void"}:
             self.parse_decl_list()
-            self.expect_eof()
         else :
             raise ParserError(f"Unexpected token {tok.value!r} of type {tok.type.name}")
         
@@ -159,14 +158,12 @@ class Parser:
         self.parse_type_spec()
         self.expect(TokenType.IDENTIFIER)
         self.parse_param_list_tail()
-    # FunDecl        → TypeSpec ID '(' ParamList ')' CompoundStmt
-    def parse_fun_decl(self) -> None:
-        raise NotImplementedError("parse_fun_decl not implemented yet")
-
-    # TypeSpec       → 'int' | 'float' | 'void'
     def parse_type_spec(self) -> None:
-        raise NotImplementedError("parse_type_spec not implemented yet")
-
+        tok = self.peek()
+        if tok is not None and tok.type == TokenType.KEYWORD and tok.value in {"int" , "float", "void"}:
+            self.advance()
+        else:
+            raise ParserError("Syntax error")
     # CompoundStmt   → '{' LocalDeclList StmtList '}'
     def parse_compound_stmt(self) -> None:
         raise NotImplementedError("parse_compound_stmt not implemented yet")
