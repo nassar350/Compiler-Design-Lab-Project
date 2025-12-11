@@ -376,8 +376,13 @@ class Parser:
     # RelOp         → '<' | '<=' | '>' | '>=' | '==' | '!='
     def parse_rel_op(self) -> None:
         tok = self.peek()
-        if tok is not None and tok.value in {'<', '<=', '>', '>=', '==', '!='}:
+        if tok is None:
+            raise ParserError("Expected relational operator, got end of input")
+
+        valid_ops = {'<', '<=', '>', '>=', '==', '!='}
+        if tok.value in valid_ops:
             self.advance()
+            return tok.value
         else:
             raise ParserError(f"Expected relational operator, got {tok.value!r}")
 
@@ -397,175 +402,88 @@ class Parser:
             self.parse_add_expr_tail()
         # else: epsilon case, just return
 
+    # Term          → Factor TermTail
     def parse_term(self) -> None:
-        """Term: parse primary expression (ID, number, parenthesized expr, function call, etc.)"""
-        tok = self.peek()
-        if tok is None:
-            raise ParserError("Unexpected end of input in expression")
-        
-        if tok.type == TokenType.IDENTIFIER:
-            self.advance()
-            # Check for function call: ID (...)
-            next_tok = self.peek()
-            if next_tok is not None and next_tok.value == '(':
-                self.advance()  # consume (
-                self.parse_arg_list()
-                self.expect(lexeme=')')
-        elif tok.type == TokenType.NUMBER:
-            self.advance()
-        elif tok.value == '(':
-            self.advance()  # consume (
-            self.parse_expr()
-            self.expect(lexeme=')')
-        else:
-            raise ParserError(f"Unexpected token in expression: {tok.value!r}")
-
-    def parse_arg_list(self) -> None:
-        """Parse function argument list (simplified)"""
-        tok = self.peek()
-        if tok is not None and tok.value == ')':
-            # Empty argument list
-            return
-        # Parse first argument
-        self.parse_expr()
-        # Parse remaining arguments
-        self.parse_arg_list_tail()
-
-    def parse_arg_list_tail(self) -> None:
-        """Parse remaining function arguments"""
-        tok = self.peek()
-        if tok is not None and tok.value == ',':
-            self.advance()  # consume ,
-            self.parse_expr()
-            self.parse_arg_list_tail()   
-
-    # ================= LAST 10 FUNCTIONS =================
-    
-    # 1. RelOp → < | <= | > | >= | == | !=
-    def parse_rel_op(self) -> str:
-        tok = self.peek()
-        if tok is None:
-            raise ParserError('error')
-        
-        valid_ops = {'<', '<=', '>', '>=', '==', '!='}
-        if tok.value in valid_ops:
-            self.advance()
-            return tok.value
-        else:
-            raise ParserError('error')
-    
-    # 2. AddExpr → Term AddExprTail
-    def parse_add_expr(self) -> None:
-        
-        self.parse_term()
-        self.parse_add_expr_tail()
-    
-    # 3. AddExprTail → + Term AddExprTail | - Term AddExprTail | ε
-    def parse_add_expr_tail(self) -> None:
-        
-        tok = self.peek()
-        if tok is None:
-            return  # ε case
-        
-        if tok.value == '+':
-            self.advance()  # consume '+'
-            self.parse_term()
-            self.parse_add_expr_tail()  # recursive call for more operations
-        elif tok.value == '-':
-            self.advance()  # consume '-'
-            self.parse_term()
-            self.parse_add_expr_tail()  # recursive call for more operations
-        # else: ε case (no + or -)
-    
-    # 4. Term → Factor TermTail
-    def parse_term(self) -> None:
-        
         self.parse_factor()
         self.parse_term_tail()
     
-    # 5. TermTail → * Factor TermTail | / Factor TermTail | ε
+    # TermTail → * Factor TermTail | / Factor TermTail | ε
     def parse_term_tail(self) -> None:
-        
         tok = self.peek()
         if tok is None:
             return  # ε case
         
         if tok.value == '*':
-            self.advance()  # consume '*'
-            self.parse_factor()
-            self.parse_term_tail()  # recursive call for more operations
+            self.expect(lexeme='*') 
         elif tok.value == '/':
-            self.advance()  # consume '/'
-            self.parse_factor()
-            self.parse_term_tail()  # recursive call for more operations
+            self.expect(lexeme='/')
+        else:
+            return  # ε case
+
+        self.parse_factor()
+        self.parse_term_tail()
         # else: ε case (no * or /)
     
-    # 6. Factor → ( Expr ) | ID FactorTail | Literal
+    # Factor → ( Expr ) | ID FactorTail | Literal
     def parse_factor(self) -> None:
-        
         tok = self.peek()
         if tok is None:
             raise ParserError("Unexpected end of input while parsing factor")
         
         if tok.value == '(':
-            self.advance()  # consume '('
+            self.expect(lexeme='(')
             self.parse_expr()  # parse the expression inside parentheses
             self.expect(lexeme=')')  # consume ')'
         elif tok.type == TokenType.IDENTIFIER:
-            self.advance()  # consume the identifier
+            self.expect(type_=TokenType.IDENTIFIER)
             self.parse_factor_tail()  # check for function call
-        elif tok.type in {TokenType.INT_CONST, TokenType.FLOAT_CONST}:
+        elif tok.type == TokenType.NUMERIC_CONSTANT:
             self.parse_literal()
         else:
             raise ParserError(
                 f"Expected factor (literal, identifier, or '('), got {tok.value!r}")
     
-    # 7. FactorTail → ( ArgList ) | ε
+    # FactorTail → ( ArgList ) | ε
     def parse_factor_tail(self) -> None:
-        
         tok = self.peek()
         if tok is None:
             return  # ε case (end of input)
         
         if tok.value == '(':
-            self.advance()  # consume '('
+            self.expect(lexeme='(')  # consume '('
             self.parse_arg_list()  # parse the argument list
             self.expect(lexeme=')')  # consume ')'
-        # else: ε case (not a function call, just a variable)
+        else:
+            return
     
-    # 8. ArgList → Expr ArgListTail | ε
+    # ArgList → Expr ArgListTail | ε
     def parse_arg_list(self) -> None:
-        
         tok = self.peek()
         if tok is None or tok.value == ')':
             return  # ε case (empty argument list)
-        
+
         self.parse_expr()  # parse first expression
         self.parse_arg_list_tail()  # parse remaining arguments
     
-    # 9. ArgListTail → , Expr ArgListTail | ε
+    # ArgListTail → , Expr ArgListTail | ε
     def parse_arg_list_tail(self) -> None:
-        
         tok = self.peek()
         if tok is None or tok.value == ')':
             return  # ε case (no more arguments)
         
         if tok.value == ',':
-            self.advance()  # consume ','
+            self.expect(lexeme=',')  # consume ','
             self.parse_expr()  # parse next expression
             self.parse_arg_list_tail()  # recursive call for more arguments
         else:
             raise ParserError(f"Expected ',' or ')' in argument list, got {tok.value!r}")
     
-    # 10. Literal → INT_CONST | FLOAT_CONST
+    # Literal → INT_CONST | FLOAT_CONST
     def parse_literal(self) -> None:
-        
         tok = self.peek()
         if tok is None:
             raise ParserError('Error ')
         
-        if tok.type == TokenType.INT_CONST or tok.type == TokenType.FLOAT_CONST:
-            self.advance()  # consume the literal
-        else:
-            raise ParserError('Error')
+        self.expect(type_=TokenType.NUMERIC_CONSTANT)
+
     
