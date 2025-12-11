@@ -111,12 +111,54 @@ class Parser:
             raise ParserError("Syntax error")
     # Decl           → VarDecl | FunDecl
     def parse_decl(self) -> None:
-        raise NotImplementedError("parse_decl not implemented yet")
+        tok = self.peek()
+        if tok is not None and tok.type == TokenType.KEYWORD and tok.value in {"int" , "float", "void"}:
+            #lookahead to decide between VarDecl and FunDecl
+            self.parse_type_spec()
+            id_token = self.expect(TokenType.IDENTIFIER)
+            next_token = self.peek()
+            if next_token is not None and next_token.value == '(':
+                # Function declaration
+                self.expect(lexeme='(')
+                self.parse_param_list()
+                self.expect(lexeme=')')
+                self.parse_compound_stmt()
+            else:
+                # Variable declaration
+                self.parse_var_decl_tail()
+                self.expect(lexeme=';')
+        else:
+            raise ParserError("Syntax error in declaration")
 
     # VarDecl        → TypeSpec ID VarDeclTail ';'
-    def parse_var_decl(self) -> None:
-        raise NotImplementedError("parse_var_decl not implemented yet")
-
+    def parse_var_decl_tail(self) -> None:
+        tok = self.peek()
+        if tok is not None and tok.value == ';':
+            return 
+        self.expect(lexeme=',')
+        self.expect(TokenType.IDENTIFIER)
+        self.parse_var_decl_tail()
+    # ParamList      → (TypeSpec ID (',' TypeSpec ID)*)?
+    def parse_param_list(self) -> None:
+        tok = self.peek()
+        if tok is not None and ((tok.type == TokenType.KEYWORD and tok.value == "void") or tok.value == ')'):
+            if tok.value == "void":
+                self.advance()
+            return
+        if tok is not None and tok.type == TokenType.KEYWORD and tok.value in {"int" , "float"}:
+            self.parse_type_spec()
+            self.expect(TokenType.IDENTIFIER)
+            self.parse_param_list_tail()
+        else:
+            raise ParserError("Syntax error")
+    def parse_param_list_tail(self) -> None:
+        tok = self.peek()
+        if tok is not None and tok.value == ')':
+            return
+        self.expect(lexeme=',')
+        self.parse_type_spec()
+        self.expect(TokenType.IDENTIFIER)
+        self.parse_param_list_tail()
     # FunDecl        → TypeSpec ID '(' ParamList ')' CompoundStmt
     def parse_fun_decl(self) -> None:
         raise NotImplementedError("parse_fun_decl not implemented yet")
