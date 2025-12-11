@@ -28,6 +28,12 @@ class Tokenizer:
         tokens = []
         for match in re.finditer(self.token_pattern, code):
             lexeme = match.group(0)
+            start = match.start()
+            # Compute line and column from start index
+            # Line numbers start at 1; column starts at 1
+            line = code.count('\n', 0, start) + 1
+            last_nl = code.rfind('\n', 0, start)
+            column = (start - last_nl) if last_nl != -1 else (start + 1)
 
             if self.scanner.is_comment(lexeme):
                 token_type = token_types.TokenType.COMMENT
@@ -50,6 +56,6 @@ class Tokenizer:
             else:
                 token_type = token_types.TokenType.IDENTIFIER
 
-            tokens.append(Token(lexeme, token_type))
+            tokens.append(Token(lexeme, token_type, line=line, column=column))
 
         return tokens
