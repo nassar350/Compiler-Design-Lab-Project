@@ -275,7 +275,7 @@ class Parser:
         self.expect(lexeme=')')
         self.parse_stmt()
 
-    # ForStmt        → 'for' '(' ExprStmt ExprStmt Expr ')' Stmt
+    # ForStmt        → 'for' '(' ExprStmt ExprStmt ExprOpt ')' Stmt
     def parse_for_stmt(self) -> None:
         tok = self.peek()
         if tok is None:
@@ -285,7 +285,7 @@ class Parser:
         self.expect(lexeme='(')
         self.parse_expr_stmt()
         self.parse_expr_stmt()
-        self.parse_expr()
+        self.parse_expr_opt()
         self.expect(lexeme=')')
         self.parse_stmt()
 
@@ -315,8 +315,6 @@ class Parser:
         else:
             # Not an assignment, parse as OrExpr
             return self.parse_or_expr()
-
-
 
     def parse_or_expr(self) -> None:
         """OrExpr → AndExpr OrExprTail"""

@@ -52,7 +52,7 @@ ElsePart       → else Stmt
 WhileStmt      → while ( Expr ) Stmt
 
 ForStmt        → for ( ForInitExpr ; ForCondExpr ; ForIterExpr ) Stmt
-//Yousef -> ForStmt        → for ( ExprStmt ExprStmt Expr ) Stmt
+//Yousef -> ForStmt        → for ( ExprStmt ExprStmt ExprOpt ) Stmt
 
 ForInitExpr    → Expr
                | ε
