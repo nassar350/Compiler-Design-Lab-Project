@@ -52,9 +52,9 @@ def main():
     try:
         parser.parse_program()
         parser.expect_eof()
-        print("Syntax: OK")
+        print("Syntax is correct. ✅\n")
     except ParserError as e:
-        print(f"Syntax error: {e}")
+        print(f"{e}. ❌\n")
 
     # OUTPUT
     if args.output:

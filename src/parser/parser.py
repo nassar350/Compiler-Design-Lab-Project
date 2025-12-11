@@ -78,13 +78,13 @@ class Parser:
         """
         tok = self.peek()
         if tok is None:
-            raise ParserError("Unexpected end of input")
+            raise ParserError("Syntax Error")
 
         if type_ is not None and tok.type is not type_:
-            raise ParserError(f"Expected token type {type_.name}, got {tok.type.name} ({tok.value!r})")
+            raise ParserError("Syntax Error")
 
         if lexeme is not None and tok.value != lexeme:
-            raise ParserError(f"Expected '{lexeme}', got {tok.value!r}")
+            raise ParserError("Syntax Error")
 
         if advance:
             self.pos += 1
@@ -94,7 +94,7 @@ class Parser:
         """Ensure there are no remaining non-trivia tokens."""
         if self.peek() is not None:
             tok = self.peek()
-            raise ParserError(f"Unexpected extra token {tok.value!r} of type {tok.type.name}")
+            raise ParserError("Syntax Error")
     
 
     # --- Grammer Implementation ---
@@ -108,13 +108,13 @@ class Parser:
         """
         tok = self.peek()
         if tok is None:
-            raise ParserError("Empty input: no tokens to parse")
+            raise ParserError("Syntax Error")
 
         if tok is not None and tok.type == TokenType.KEYWORD and tok.value in {"int" , "float", "void"}:
             self.parse_decl_list()
             self.expect_eof()
         else :
-            raise ParserError(f"Unexpected token {tok.value!r} of type {tok.type.name}")
+            raise ParserError("Syntax Error")
 
     # Program        → DeclList EOF
     def parse_decl_list(self) -> None:
@@ -126,7 +126,7 @@ class Parser:
             self.parse_decl()
             self.parse_decl_list()
         else:
-            raise ParserError("Syntax error")
+            raise ParserError("Syntax Error")
 
     # Decl           → VarDecl | FunDecl
     def parse_decl(self) -> None:
@@ -147,7 +147,7 @@ class Parser:
                 self.parse_var_decl_tail()
                 self.expect(lexeme=';')
         else:
-            raise ParserError("Syntax error in declaration")
+            raise ParserError("Syntax Error")
 
     # VarDecl        → TypeSpec ID VarDeclTail ';'
     def parse_var_decl(self) -> None:
@@ -158,7 +158,7 @@ class Parser:
             self.parse_var_decl_tail()
             self.expect(lexeme=';')
         else:
-            raise ParserError("Syntax error in variable declaration")
+            raise ParserError("Syntax Error")
 
     # VarDeclTail    → (',' ID)*
     def parse_var_decl_tail(self) -> None:
@@ -181,7 +181,7 @@ class Parser:
             self.expect(TokenType.IDENTIFIER)
             self.parse_param_list_tail()
         else:
-            raise ParserError("Syntax error")
+            raise ParserError("Syntax Error")
 
     # ParamListTail  → (',' TypeSpec ID)*
     def parse_param_list_tail(self) -> None:
@@ -199,13 +199,13 @@ class Parser:
         if tok is not None and tok.type == TokenType.KEYWORD and tok.value in {"int" , "float", "void"}:
             self.advance()
         else:
-            raise ParserError("Syntax error")
+            raise ParserError("Syntax Error")
 
     # CompoundStmt   → '{' LocalDeclList StmtList '}'
     def parse_compound_stmt(self) -> None:
         tok = self.peek()
         if tok is None:
-            raise ParserError("Syntax error")
+            raise ParserError("Syntax Error")
         self.expect(lexeme='{')
         self.parse_local_decl_list()
         self.parse_stmt_list()
@@ -250,9 +250,9 @@ class Parser:
             elif tok.type == TokenType.IDENTIFIER:
                 self.parse_expr_stmt()
             else:
-                raise ParserError("Syntax error in statement")
+                raise ParserError("Syntax Error")
         else:
-            raise ParserError("Syntax error in statement")
+            raise ParserError("Syntax Error")
 
     # ExprStmt      → Expr ';' | ';'
     def parse_expr_stmt(self) -> None:
@@ -268,7 +268,7 @@ class Parser:
     def parse_if_stmt(self) -> None:
         tok = self.peek()
         if tok is None:
-            raise ParserError("Syntax error in if statement")
+            raise ParserError("Syntax Error")
 
         self.expect(TokenType.KEYWORD, lexeme='if')
         self.expect(lexeme='(')
@@ -290,7 +290,7 @@ class Parser:
     def parse_while_stmt(self) -> None:
         tok = self.peek()
         if tok is None:
-            raise ParserError("Syntax error in while statement")
+            raise ParserError("Syntax Error")
 
         self.expect(TokenType.KEYWORD, lexeme='while')
         self.expect(lexeme='(')
@@ -302,7 +302,7 @@ class Parser:
     def parse_for_stmt(self) -> None:
         tok = self.peek()
         if tok is None:
-            raise ParserError("Syntax error in for statement")
+            raise ParserError("Syntax Error")
 
         self.expect(TokenType.KEYWORD, lexeme='for')
         self.expect(lexeme='(')
@@ -316,7 +316,7 @@ class Parser:
     def parse_return_stmt(self) -> None:
         tok = self.peek()
         if tok is None:
-            raise ParserError("Syntax error in return statement")
+            raise ParserError("Syntax Error")
 
         self.expect(TokenType.KEYWORD, lexeme='return')
         self.parse_expr_opt()
@@ -409,14 +409,14 @@ class Parser:
     def parse_rel_op(self) -> None:
         tok = self.peek()
         if tok is None:
-            raise ParserError("Expected relational operator, got end of input")
+            raise ParserError("Syntax Error")
 
         valid_ops = {'<', '<=', '>', '>=', '==', '!='}
         if tok.value in valid_ops:
             self.advance()
             return tok.value
         else:
-            raise ParserError(f"Expected relational operator, got {tok.value!r}")
+            raise ParserError("Syntax Error")
 
     # AddExpr       → Term AddExprTail
     def parse_add_expr(self) -> None:
@@ -460,7 +460,7 @@ class Parser:
     def parse_factor(self) -> None:
         tok = self.peek()
         if tok is None:
-            raise ParserError("Unexpected end of input while parsing factor")
+            raise ParserError("Syntax Error")
         
         if tok.value == '(':
             self.expect(lexeme='(')
@@ -472,8 +472,7 @@ class Parser:
         elif tok.type == TokenType.NUMERIC_CONSTANT:
             self.parse_literal()
         else:
-            raise ParserError(
-                f"Expected factor (literal, identifier, or '('), got {tok.value!r}")
+            raise ParserError("Syntax Error")
     
     # FactorTail → ( ArgList ) | ε
     def parse_factor_tail(self) -> None:
@@ -508,13 +507,13 @@ class Parser:
             self.parse_expr()  # parse next expression
             self.parse_arg_list_tail()  # recursive call for more arguments
         else:
-            raise ParserError(f"Expected ',' or ')' in argument list, got {tok.value!r}")
+            raise ParserError("Syntax Error")
     
     # Literal → INT_CONST | FLOAT_CONST
     def parse_literal(self) -> None:
         tok = self.peek()
         if tok is None:
-            raise ParserError('Error ')
+            raise ParserError("Syntax Error")
         
         self.expect(type_=TokenType.NUMERIC_CONSTANT)
 
