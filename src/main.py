@@ -49,17 +49,20 @@ def main():
     
     # PARSING
     parser = Parser(tokens)
+    parse_state = False
     try:
         parser.parse_program()
         parser.expect_eof()
+        parse_state = True
         print("Syntax is correct. ✅\n")
     except ParserError as e:
-        print(f"{e}. ❌\n")
+        print(f"{e} ❌\n")
 
     # OUTPUT
     if args.output:
         try:
             write_tokens(tokens, args.output)
+            
         except ValueError as ve:
             print(f"❌ Error: {ve}")
             sys.exit(1)
