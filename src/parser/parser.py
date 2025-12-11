@@ -81,6 +81,13 @@ class Parser:
         if self.peek() is None:
             # Empty input is considered an error for now
             raise ParserError("Empty input: no tokens to parse")
+        tok = self.peek()
+        if tok is not None and tok.type == TokenType.KEYWORD and tok.value in {"int" , "float", "void"}:
+            self.parse_decl_list()
+            self.expect_eof()
+        else :
+            raise ParserError(f"Unexpected token {tok.value!r} of type {tok.type.name}")
+        
 
     def expect_eof(self) -> None:
         """Ensure there are no remaining non-trivia tokens."""
@@ -93,8 +100,15 @@ class Parser:
 
     # Program        → DeclList EOF
     def parse_decl_list(self) -> None:
-        raise NotImplementedError("parse_decl_list not implemented yet")
-
+        tok = self.peek()
+        #base case 
+        if tok is None:
+            return
+        if tok is not None and tok.type == TokenType.KEYWORD and tok.value in {"int" , "float", "void"}:
+            self.parse_decl()
+            self.parse_decl_list()
+        else:
+            raise ParserError("Syntax error")
     # Decl           → VarDecl | FunDecl
     def parse_decl(self) -> None:
         raise NotImplementedError("parse_decl not implemented yet")
