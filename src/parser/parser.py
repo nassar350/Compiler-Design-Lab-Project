@@ -299,69 +299,95 @@ class Parser:
         self.parse_expr_opt()
         self.expect(lexeme=';')
 
+    # ExprOpt       → Expr | ε
+    def parse_expr_opt(self) -> None:
+        tok = self.peek()
+        if tok is not None and (tok.type == TokenType.IDENTIFIER):
+            self.parse_expr()
+        else:
+            return
+
+    # Expr          → AssignExpr
     def parse_expr(self) -> None:
         """Expr → AssignExpr"""
         return self.parse_assign_expr()
 
+    # AssignExpr    → ID = AssignExpr | OrExpr
     def parse_assign_expr(self) -> None:
         """AssignExpr → ID = AssignExpr | OrExpr"""
         # Check if this is an assignment: ID = AssignExpr
-        if (self.peek() is not None and self.peek().type == TokenType.IDENTIFIER and
-            self.peek(1) is not None and self.peek(1).value == '='):
-            # Assignment: consume ID and = then parse right-hand side
-            self.advance()  # consume ID
-            self.advance()  # consume =
+        tok = self.peek()
+
+        if (tok is not None and tok.type == TokenType.IDENTIFIER):
+            self.expect(type_=TokenType.IDENTIFIER)
+            self.expect(lexeme='=')
             return self.parse_assign_expr()
         else:
             # Not an assignment, parse as OrExpr
             return self.parse_or_expr()
 
+    # OrExpr        → AndExpr OrExprTail
     def parse_or_expr(self) -> None:
         """OrExpr → AndExpr OrExprTail"""
         self.parse_and_expr()
         self.parse_or_expr_tail()
 
+    # OrExprTail    → || AndExpr OrExprTail | ε
     def parse_or_expr_tail(self) -> None:
         """OrExprTail → || AndExpr OrExprTail | ε"""
         tok = self.peek()
         if tok is not None and tok.value == '||':
-            self.advance()  # consume ||
+            self.expect(lexeme='||')
             self.parse_and_expr()
             self.parse_or_expr_tail()
         # else: epsilon case, just return
 
+    # AndExpr       → RelExpr AndExprTail
     def parse_and_expr(self) -> None:
         """AndExpr → RelExpr AndExprTail"""
         self.parse_rel_expr()
         self.parse_and_expr_tail()
 
+    # AndExprTail   → && RelExpr AndExprTail | ε
     def parse_and_expr_tail(self) -> None:
         """AndExprTail → && RelExpr AndExprTail | ε"""
         tok = self.peek()
         if tok is not None and tok.value == '&&':
-            self.advance()  # consume &&
+            self.expect(lexeme='&&')
             self.parse_rel_expr()
             self.parse_and_expr_tail()
         # else: epsilon case, just return
 
+    # RelExpr       → AddExpr RelOpTail
     def parse_rel_expr(self) -> None:
         """RelExpr → AddExpr RelOpTail"""
         self.parse_add_expr()
         self.parse_rel_op_tail()
 
+    # RelOpTail     → RelOp AddExpr | ε
     def parse_rel_op_tail(self) -> None:
         """RelOpTail → RelOp AddExpr | ε"""
         tok = self.peek()
         if tok is not None and tok.value in {'<', '<=', '>', '>=', '==', '!='}:
-            self.advance()  # consume relational operator
+            self.parse_rel_op()
             self.parse_add_expr()
         # else: epsilon case, just return
 
+    # RelOp         → '<' | '<=' | '>' | '>=' | '==' | '!='
+    def parse_rel_op(self) -> None:
+        tok = self.peek()
+        if tok is not None and tok.value in {'<', '<=', '>', '>=', '==', '!='}:
+            self.advance()
+        else:
+            raise ParserError(f"Expected relational operator, got {tok.value!r}")
+
+    # AddExpr       → Term AddExprTail
     def parse_add_expr(self) -> None:
         """AddExpr → Term AddExprTail"""
         self.parse_term()
         self.parse_add_expr_tail()
 
+    # AddExprTail   → + Term AddExprTail | - Term AddExprTail | ε
     def parse_add_expr_tail(self) -> None:
         """AddExprTail → + Term AddExprTail | - Term AddExprTail | ε"""
         tok = self.peek()
